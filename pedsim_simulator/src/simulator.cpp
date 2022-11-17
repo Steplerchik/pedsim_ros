@@ -128,7 +128,7 @@ bool Simulator::initializeSimulation() {
       "base_footprint");
 
   paused_ = false;
-
+  last_sim_time = ros::Time::now();
   spawn_timer_ =
       nh_.createTimer(ros::Duration(spawn_period), &Simulator::spawnCallback, this);
 
@@ -152,6 +152,10 @@ void Simulator::runSimulation() {
 
     if (!paused_) {
       updateRobotPositionFromTF();
+      ros::Time now = ros::Time::now();
+      ros::Duration diff = now - last_sim_time;
+      last_sim_time = now;
+      SCENE.setTimeStepSize(diff.toSec());
       SCENE.moveAllAgents();
 
       publishAgents();
